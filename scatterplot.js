@@ -2,7 +2,7 @@ var viewWidth = window.innerWidth;
 var viewHeight = window.innerHeight;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 20, right: 20, bottom: 30, left: 40};
+var margin = {top: 20, right: 100, bottom: 30, left: 65};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
@@ -24,21 +24,47 @@ d3.csv("data/asylum_seekers_monthly_all_data.csv", function(d) {
   };
 }*/
 
-function drawScatterplot() {
-    // setup x 
-  var xValue = function(d) { return d.x;},
+/*d3.csv("data/asylum_seekers_monthly_all_data.csv", function(csv_data) {
+
+  //data.filter(function(row){ return row["Year"] == "2001"})
+    //console.log(data);
+    //vis.datum(csv).call(chart);
+    /*data.forEach(function(d) {
+      var dataset
+    console.log(d)
+  });
+  return d3.nest()
+      .key(function(d) {return d.Year})
+      .rollup(function(d) {return d3.sum(d, function(g){return g.Value})} )
+      .entries(csv_data)
+});*/
+
+
+d3.csv("data/asylum_seekers_monthly_all_data.csv", function(csv_data) {
+
+
+function getDataPerYear() {
+  var temp = d3.nest()
+              .key(function(d) {return d.Year})
+              .rollup(function(d) {return d3.sum(d, function(g){return g.Value})} )
+              .entries(csv_data)
+  return temp;
+}
+
+function drawScatterplot(data) {
+  var xValue = function(d) { return parseInt(d.key, 10);},
       xScale = d3.scale.linear().range([0, viewWidth]), // value -> display
       xMap = function(d) { return xScale(xValue(d));}, // data -> display
       xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
   // setup y
-  var yValue = function(d) { return d.y;},
+  var yValue = function(d) { return d.values;},
       yScale = d3.scale.linear().range([viewHeight, 0]), // value -> display
-      yMap = function(d) { return yScale(d.y);}, // data -> display
+      yMap = function(d) { return yScale(yValue(d));}, // data -> display
       yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-  xScale.domain([d3.min(boat_data.boats, xValue)-1, d3.max(boat_data.boats, xValue)+1]);
-  yScale.domain([d3.min(boat_data.boats, yValue)-1, d3.max(boat_data.boats, yValue)+1]);
+  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+  yScale.domain([0, d3.max(data, yValue)+1]);
 
   // x-axis
   svg.append("g")
@@ -65,7 +91,7 @@ function drawScatterplot() {
       .text("Y");
 
   svg.selectAll("circle")
-      .data(boat_data.boats)
+      .data(data)
       .enter()
       .append("circle")
       .attr("class", "dot")
@@ -80,13 +106,17 @@ function drawScatterplot() {
   console.log("Draw Scatterplot");
 
   //The data can be found in the boat_data.boats variable
-  console.log(boat_data.boats); //IMPORTANT - Remove this, it is here just to show you how to access the data
+  //console.log(boat_data.boats); //IMPORTANT - Remove this, it is here just to show you how to access the data
 
   //You can start with a simple scatterplot that shows the x and y attributes in boat_data.boats
 
   //Additional tasks are given at the end of this file
 }
+var data = getDataPerYear();
 
+drawScatterplot(data);
+
+});
 function resize() {
   //This function is called if the window is resized
   //You can update your scatterplot here
@@ -95,7 +125,6 @@ function resize() {
 }
 
 
-drawScatterplot();
 
 
 //////////////////////////////////////////////////////////////////////////////////
