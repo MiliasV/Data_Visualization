@@ -2,7 +2,7 @@ var viewWidth = window.innerWidth;
 var viewHeight = window.innerHeight;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 20, right: 100, bottom: 30, left: 65};
+var margin = {top: 20, right: 100, bottom: 30, left: 60};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
@@ -12,38 +12,14 @@ var svg = d3.select("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// load data
-/*
-d3.csv("data/asylum_seekers_monthly_all_data.csv", function(d) {
-  return {
-    hosting_country : d["Country / territory of asylum/residence"],
-    origin : d.origin,
-    year : d.year,
-    month : d.month,
-    value : +d.value
-  };
-}*/
+// Read the dataset from the csv file
+var path = "data/asylum_seekers_monthly_all_data.csv";
+d3.csv(path, function(csv_data) {
+  drawScatterplot(getDataPerYear(csv_data));
+});
 
-/*d3.csv("data/asylum_seekers_monthly_all_data.csv", function(csv_data) {
-
-  //data.filter(function(row){ return row["Year"] == "2001"})
-    //console.log(data);
-    //vis.datum(csv).call(chart);
-    /*data.forEach(function(d) {
-      var dataset
-    console.log(d)
-  });
-  return d3.nest()
-      .key(function(d) {return d.Year})
-      .rollup(function(d) {return d3.sum(d, function(g){return g.Value})} )
-      .entries(csv_data)
-});*/
-
-
-d3.csv("data/asylum_seekers_monthly_all_data.csv", function(csv_data) {
-
-
-function getDataPerYear() {
+// Get the year as key and the sum of the number of refugees in that year
+function getDataPerYear(csv_data) {
   var temp = d3.nest()
               .key(function(d) {return d.Year})
               .rollup(function(d) {return d3.sum(d, function(g){return g.Value})} )
@@ -51,6 +27,7 @@ function getDataPerYear() {
   return temp;
 }
 
+// Draw a scatter plot using the given data
 function drawScatterplot(data) {
   var xValue = function(d) { return parseInt(d.key, 10);},
       xScale = d3.scale.linear().range([0, viewWidth]), // value -> display
@@ -63,7 +40,7 @@ function drawScatterplot(data) {
       yMap = function(d) { return yScale(yValue(d));}, // data -> display
       yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+  xScale.domain([d3.min(data, xValue), d3.max(data, xValue)+1]);
   yScale.domain([0, d3.max(data, yValue)+1]);
 
   // x-axis
@@ -112,11 +89,7 @@ function drawScatterplot(data) {
 
   //Additional tasks are given at the end of this file
 }
-var data = getDataPerYear();
 
-drawScatterplot(data);
-
-});
 function resize() {
   //This function is called if the window is resized
   //You can update your scatterplot here
