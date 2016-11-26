@@ -2,15 +2,15 @@ var viewWidth = window.innerWidth;
 var viewHeight = window.innerHeight;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 30, right: 5, bottom: 30, left: 60};
+var margin = {top: 30, right: 5, bottom: 30, left: 100};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
 var svg = d3.select("svg")
-    .attr("width", viewWidth)
-    .attr("height", viewHeight)
+    .attr("width", viewWidth-5)
+    .attr("height", viewHeight-5)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
 
 // Read the dataset from the csv file
 var path = "data/asylum_seekers_monthly_all_data.csv";
@@ -75,20 +75,20 @@ function drawScatterplot(data, text) {
 
 
   var xValue = function(d) { return parseInt(d.key, 10);},
-      xScale = d3.scale.linear().range([0, viewWidth]), // value -> display
+      xScale = d3.scale.linear().range([100, viewWidth-200]), // value -> display
       xMap = function(d) { return xScale(xValue(d));}, // data -> display
       xAxis = d3.svg.axis().scale(xScale).orient("bottom");
       //console.log(xValue)
   // setup y
   var yValue = function(d) { return d.values;},
-      yScale = d3.scale.linear().range([viewHeight, 0]), // value -> display
+      yScale = d3.scale.linear().range([viewHeight-100, 0]), // value -> display
       yMap = function(d) { return yScale(yValue(d));}, // data -> display
       yAxis = d3.svg.axis().scale(yScale).orient("left");
 
   xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
 //  xScale.domain([d3.min(data, xValue), d3.max(data, xValue)+1]);
 
-  yScale.domain([0, d3.max(data, yValue)+1]);
+  yScale.domain([d3.min(data, yValue)/1.3, d3.max(data, yValue)+1]);
 
   // x-axis
   svg.append("g")
