@@ -15,7 +15,7 @@ var svg = d3.select("svg")
 // Read the dataset from the csv file
 var path = "data/asylum_seekers_monthly_all_data.csv";
 d3.csv(path, function(csv_data) {
-  drawScatterplot(getDataPerYear(csv_data))
+  drawScatterplot(getDataPerYear(csv_data), "Year")
 });
 
 
@@ -65,11 +65,13 @@ function getDataPerMonth(csv_data, Year){
 
 
 // Draw a scatter plot using the given data
-function drawScatterplot(data) {
+function drawScatterplot(data, text) {
 
     //remove the pre-existing graph
     svg.selectAll("circle").remove()
     svg.selectAll("g").remove()
+    svg.selectAll("text").remove()
+
 
 
   var xValue = function(d) { return parseInt(d.key, 10);},
@@ -112,6 +114,16 @@ function drawScatterplot(data) {
       .style("text-anchor", "end")
       .text("Y");
 
+
+//Title of the graph
+  svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top - 50))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "30px") 
+        .style("text-decoration", "underline")  
+        .text("Refugees bla bla per " + text);
+
   svg.selectAll("circle")
       .data(data)
       .enter()
@@ -124,7 +136,7 @@ function drawScatterplot(data) {
           console.log(d.key)
           d3.csv(path, function(csv_data) {
           //drawScatterplot(getDataPerMonth(csv_data, "2013"));
-          drawScatterplot(getDataPerMonth(csv_data,d.key))
+          drawScatterplot(getDataPerMonth(csv_data,d.key),"Month")
          });
        
       });
