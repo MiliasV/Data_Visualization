@@ -6,10 +6,18 @@ var margin = {top: 30, right: 5, bottom: 30, left: 100};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
-var svg = d3.select("svg")
+var svg1 = d3.select("#svgFirst")
     .attr("width", viewWidth-5)
     .attr("height", viewHeight-5)
     .append("g")
+    .attr("id","year")
+    .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
+
+var svg2 = d3.select("#svgSecond")
+    .attr("width", viewWidth-5)
+    .attr("height", viewHeight-5)
+    .append("g")
+    .attr("id","month")
     .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
 
 // Read the dataset from the csv file
@@ -17,7 +25,6 @@ var path = "data/asylum_seekers_monthly_all_data.csv";
 d3.csv(path, function(csv_data) {
   drawScatterplot(getDataPerYear(csv_data), "Year")
 });
-
 
 
 // Get the year as key and the sum of the number of refugees in that year
@@ -68,10 +75,9 @@ function getDataPerMonth(csv_data, Year){
 function drawScatterplot(data, text) {
 
     //remove the pre-existing graph
-    svg.selectAll("circle").remove()
-    svg.selectAll("g").remove()
-    svg.selectAll("text").remove()
-
+    //svg.selectAll("circle").remove()
+    //svg.selectAll(svg2).remove()
+    //d3.select("#svgSecond").remove()
 
 
   var xValue = function(d) { return parseInt(d.key, 10);},
@@ -90,6 +96,18 @@ function drawScatterplot(data, text) {
 
   yScale.domain([d3.min(data, yValue)/1.3, d3.max(data, yValue)+1]);
 
+  if(text =="Year"){
+    var svg = svg1;
+  }
+  else{
+    var svg = svg2;
+    if(!d3.select("#month").empty()){
+      svg.selectAll("circle").remove();
+      svg.selectAll("text").remove();
+
+      console.log("non empty");
+    }
+  }
   // x-axis
   svg.append("g")
     .attr("class", "x axis")
@@ -136,7 +154,7 @@ function drawScatterplot(data, text) {
           console.log(d.key)
           d3.csv(path, function(csv_data) {
           //drawScatterplot(getDataPerMonth(csv_data, "2013"));
-          drawScatterplot(getDataPerMonth(csv_data,d.key),"Month")
+          drawScatterplot(getDataPerMonth(csv_data,d.key),d.key.toString())
          });
        
       });
