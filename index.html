@@ -6,9 +6,16 @@
 		<script type="text/javascript" src="lib/d3.v3.min.js" charset="utf-8"></script>
 	</head>
 	<body>
+		<div>
+			<select onChange="dropdownSelection(this)" name="countries" id="countries">
+    		<!--onChange="dropdownSelection(this)" -->
+			</select>
+		</div>
 		<div id="vis">
 			<svg id="svgFirst"></svg>
 			<svg id="svgSecond"></svg>
+			<svg id="svgThird"></svg>
+			<svg id="svgFourth"></svg>
 		</div>
 		
 		<script type="text/javascript" src="data.js"></script>	
