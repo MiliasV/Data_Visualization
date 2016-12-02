@@ -1,5 +1,5 @@
-var viewWidth = 3*window.innerWidth/7;
-var viewHeight = 3*window.innerHeight/7;
+var viewWidth = 2*window.innerWidth/5;
+var viewHeight = 2*window.innerHeight/5;
 d3.select(window).on("resize", resize);
 
 var margin = {top: 20, right: 60, bottom: 30, left: 80};
@@ -268,14 +268,20 @@ function drawScatterplot(data, kind, txt, country) {
     tooltip.transition()
          .duration(200)
          .style("opacity", .9);
-    d3.select(this).style("fill", "aqua"); 
+    d3.select(this).style("fill", "black"); 
+    if (kind==1){
+      drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
+    }
+    else if(kind==3){
+      drawScatterplot(getDataPerOriginPerMonth(the_csv_data, txt, d.key), 4, d.key.toString(),txt)
+    }
   }
 
   function mouseOut(d) {
     tooltip.transition()
            .duration(500)
            .style("opacity", 0);
-    d3.select(this).style("fill", "LightSkyBlue"); 
+    d3.select(this).style("fill", "LightSkyBLue"); 
   }
 
   function click(d) {
