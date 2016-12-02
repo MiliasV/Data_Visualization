@@ -4,15 +4,22 @@ body {
   padding: 0;
 }
 
+/*.xAxis line, .xAxis path {
+  stroke: red;
+  fill: blue;
+}*/
+
 .axis path, .axis line {
-  fill: none;
+  fill: blue;
   stroke: #000;
   shape-rendering: crispEdges;
 }
 
 .dot {
   stroke-width: 0.25pt;
-  stroke: #555;
+  /*stroke: #555;*/
+  fill: LightSkyBlue ;
+
 }
 
 select {

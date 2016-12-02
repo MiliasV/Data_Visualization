@@ -1,11 +1,19 @@
-var viewWidth = window.innerWidth;
-var viewHeight = window.innerHeight;
+var viewWidth = 3*window.innerWidth/7;
+var viewHeight = 3*window.innerHeight/7;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 30, right: 5, bottom: 30, left: 100};
+var margin = {top: 20, right: 60, bottom: 30, left: 80};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
+function createSvg(text, kind){
+   return d3.select(text)
+            .attr("width", viewWidth + margin.left + margin.right)
+            .attr("height", viewHeight + margin.top + margin.bottom)
+            .append("g")
+            .attr("id", kind)
+            .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
+}
 
 //Creation of the svgs
 var svg1 = createSvg("#svgFirst", "year") //Whole world per Year, kind = 1
@@ -30,13 +38,14 @@ function createDropdown(csv_data){
   csv = csv_data.filter(function(row){
           return row["OriginCountries"]
         })
-            csv.forEach(function(row){
-              d3.selectAll("select")
-                .append("option")
-                .attr("label",row.OriginCountries)
-                .attr("id", row.OriginCountries)
+  csv.forEach(function(row){
+    d3.selectAll("select")
+      .append("option")
+      .attr("label",row.OriginCountries)
+      .attr("id", row.OriginCountries)
 
-            });
+  });
+    
         };
 
 function dropdownSelection(s){
@@ -125,14 +134,6 @@ function getDataPerOriginPerMonth(csv_data, Origin, Year){
   //return dataPerOrigin[0].values; 
 }
 
-function createSvg(text, kind){
- return d3.select(text)
-          .attr("width", viewWidth-5)
-          .attr("height", viewHeight-5)
-          .append("g")
-          .attr("id",kind)
-          .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
-}
 
 // Draw a scatter plot using the given data
 function drawScatterplot(data, kind, txt, country) {
@@ -172,38 +173,48 @@ function drawScatterplot(data, kind, txt, country) {
     
   }
 
-  var xValue = function(d) { return parseInt(d.key, 10);},
-      xScale = d3.scale.linear().range([100, viewWidth-200]), // value -> display
+  var yName = "Number of refugees"
+  var xValue = function(d) { return parseInt(d.key, 10);}
+  var yValue = function(d) { return d.values;}
+  var xMin = d3.min(data, xValue)
+  var xMax = d3.max(data, xValue)
+  var yMin = d3.min(data, yValue)
+  var yMax = d3.max(data, yValue)
+
+  var xScale = d3.scale.linear().range([0, viewWidth]), // value -> display
       xMap = function(d) { return xScale(xValue(d));}, // data -> display
-      xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+      xAxis = d3.svg
+                .axis()
+                .scale(xScale)
+                .orient("bottom")
+                .ticks(xMax - xMin);
       //console.log(xValue)
   // setup y
-  var yValue = function(d) { return d.values;},
-      yScale = d3.scale.linear().range([viewHeight-100, 0]), // value -> display
+  var yScale = d3.scale.linear().range([viewHeight, 0]), // value -> display
       yMap = function(d) { return yScale(yValue(d));}, // data -> display
-      yAxis = d3.svg.axis().scale(yScale).orient("left");
+      yAxis = d3.svg
+                .axis()
+                .scale(yScale)
+                .orient("left")
 
-  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
-//  xScale.domain([d3.min(data, xValue), d3.max(data, xValue)+1]);
-
-  yScale.domain([d3.min(data, yValue)/1.3, d3.max(data, yValue)+1]);
-
+  xScale.domain([xMin, xMax]);
+  yScale.domain([yMin-(yMax-yMin)/10, yMax+(yMax-yMin)/10]);
 
   // x-axis
   svg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "xAxis")
+    .attr("transform", "translate(0," + viewHeight + ")")
     .call(xAxis)
     .append("text")
     .attr("class", "label")
     .attr("x", width)
-    .attr("y", -6)
+    .attr("y", 0)
     .style("text-anchor", "end")
     .text("x");
 
   // y-axis
   svg.append("g")
-      .attr("class", "y axis")
+      .attr("class", "yAxis")
       .call(yAxis)
     .append("text")
       .attr("class", "label")
@@ -212,7 +223,6 @@ function drawScatterplot(data, kind, txt, country) {
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("Y");
-
 
 //Title of the graph
   svg.append("text")
@@ -228,9 +238,12 @@ function drawScatterplot(data, kind, txt, country) {
       .enter()
       .append("circle")
       .attr("class", "dot")
-      .attr("r", 15)//function(d){console.log(d); return d.values/60000})
+      .attr("r", 10)//function(d){console.log(d); return d.values/60000})
       .attr("cx", xMap)
       .attr("cy", yMap)
+      .on("mouseover", mouseOver)
+      .on("mouseout", mouseOut)
+      //.on("click", click);
       .on("click", function(d){
           console.log(d.key)
          // d3.csv(path, function(csv_data) {
@@ -245,17 +258,32 @@ function drawScatterplot(data, kind, txt, country) {
       });
 
 
+ var tooltip =  d3.select("body").append("div")
+                  .attr("class", "tooltip")
+                  .style("display", "inline");
 
-  //The svg is already defined, you can just focus on the creation of the scatterplot
-  //you should at least draw the data points and the axes.
-  console.log("Draw Scatterplot");
 
-  //The data can be found in the boat_data.boats variable
-  //console.log(boat_data.boats); //IMPORTANT - Remove this, it is here just to show you how to access the data
+  
+  function mouseOver(d) {
+    tooltip.transition()
+         .duration(200)
+         .style("opacity", .9);
+    d3.select(this).style("fill", "aqua"); 
+  }
 
-  //You can start with a simple scatterplot that shows the x and y attributes in boat_data.boats
+  function mouseOut(d) {
+    tooltip.transition()
+           .duration(500)
+           .style("opacity", 0);
+    d3.select(this).style("fill", "LightSkyBlue"); 
+  }
 
-  //Additional tasks are given at the end of this file
+  function click(d) {
+    d3.csv(path, function(csv_data) {
+      drawScatterplot(getDataPerMonth(csv_data,d.key), d.key.toString())
+      return 1;
+    });
+  }
 }
 
 function resize() {
