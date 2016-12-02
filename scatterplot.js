@@ -16,7 +16,7 @@ var svg4 = createSvg("#svgFourth", "year") //Country per Month, kind = 4
 // Read the dataset from the csv file
 var path = "data/asylum_seekers_monthly_all_data2.csv";
 
-var the_csv_data = null
+var the_csv_data = null;
 
 d3.csv(path, function(csv_data) {
 //Create the Dropdown List (one option for each country)
@@ -110,7 +110,6 @@ function getDataPerOriginPerMonth(csv_data, Origin, Year){
             .key(function(d) { return d.Origin})
             .key(function(d){ return d.Year})
             .key(function(d){ return d.Month})
-
             .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
             .entries(csv_data)
             .filter(function(d){  return (d.key == Origin)})
@@ -234,14 +233,14 @@ function drawScatterplot(data, kind, txt, country) {
       .attr("cy", yMap)
       .on("click", function(d){
           console.log(d.key)
-          d3.csv(path, function(csv_data) {
+         // d3.csv(path, function(csv_data) {
             if (kind==1){
-              drawScatterplot(getDataPerMonth(csv_data,d.key), 2, d.key.toString())
+              drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
             }
             else if(kind==3){
-              drawScatterplot(getDataPerOriginPerMonth(csv_data, txt, d.key), 4, d.key.toString(),txt)
+              drawScatterplot(getDataPerOriginPerMonth(the_csv_data, txt, d.key), 4, d.key.toString(),txt)
             }
-         });
+         //});
        
       });
 
