@@ -4,8 +4,13 @@ body {
   padding: 0;
 }
 
+/*.xAxis line, .xAxis path {
+  stroke: red;
+  fill: blue;
+}*/
+
 .axis path, .axis line {
-  fill: none;
+  fill: blue;
   stroke: #000;
   shape-rendering: crispEdges;
 }
@@ -28,3 +33,8 @@ select {
 #selectionUI {
   display: inline-block;
 }
+
+.dot {
+  fill: LightSkyBlue ;
+}
+
