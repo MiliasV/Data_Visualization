@@ -17,7 +17,9 @@ body {
 
 .dot {
   stroke-width: 0.25pt;
-  stroke: #555;
+  /*stroke: #555;*/
+  fill: LightSkyBlue ;
+
 }
 
 select {
@@ -32,9 +34,5 @@ select {
 
 #selectionUI {
   display: inline-block;
-}
-
-.dot {
-  fill: LightSkyBlue ;
 }
 
