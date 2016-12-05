@@ -13,6 +13,7 @@ body {
   fill: blue;
   stroke: #000;
   shape-rendering: crispEdges;
+  font-size: :20px;
 }
 
 .dot {

@@ -35,16 +35,22 @@ d3.csv(path, function(csv_data) {
 });
 
 function createDropdown(csv_data){
-  csv = csv_data.filter(function(row){
-          return row["OriginCountries"]
+  var menu = ["OriginCountries", "Ingoing"]
+  menu.forEach(function(value, index, array){
+    csv = csv_data.filter(function(row){
+          return row[value]
         })
-  csv.forEach(function(row){
-    d3.selectAll("select")
-      .append("option")
-      .attr("label",row.OriginCountries)
-      .attr("id", row.OriginCountries)
+    csv.forEach(function(row){
+      str = "#" + value
+      d3.selectAll(str)
+        .append("option")
+        .attr("label",row[value])
+        .attr("id", row[value])
 
-  });
+    });
+
+  })
+  
     
         };
 
@@ -52,10 +58,15 @@ function dropdownSelection(s){
   var country = s[s.selectedIndex].id; 
   //console.log(country)
   //console.log(the_csv_data)
-  drawScatterplot(getDataPerOrigin(the_csv_data, country),3, country)
+  drawScatterplot(getDataPerOrigin(the_csv_data, country, "Origin"),3, country)
 }
 
-
+function dropdownSelection_ingoing(s){
+  var country = s[s.selectedIndex].id; 
+  //console.log(country)
+  //console.log(the_csv_data)
+  drawScatterplot(getDataPerOrigin(the_csv_data, country, "Country"),3, country)
+}
 // Get the year as key and the sum of the number of refugees in that year
 function getDataPerYear(csv_data) {
   var temp = d3.nest()
@@ -101,9 +112,9 @@ function getDataPerMonth(csv_data, Year){
   return tmp.values
 };
 
-function getDataPerOrigin(csv_data, Origin){
+function getDataPerOrigin(csv_data, Origin, column){
   var dataPerOrigin = d3.nest()
-            .key(function(d) {return d.Origin})
+            .key(function(d) {return d[column]})
             .key(function(d){ return d.Year})
 
             .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
