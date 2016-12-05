@@ -138,11 +138,13 @@ function getDataPerOriginPerMonth(csv_data, Origin, Year){
 // Draw a scatter plot using the given data
 function drawScatterplot(data, kind, txt, country) {
 
+  var xName = ""
   if(kind == 1){
     var svg = svg1;
     svg.selectAll("circle").remove();
     svg.selectAll("text").remove()
     text = "Year (World)"
+    xName = "Year"
   }
 
   else if (kind ==2){
@@ -152,6 +154,7 @@ function drawScatterplot(data, kind, txt, country) {
       svg.selectAll("text").remove()
       console.log("non empty");
       text = "Month (" + txt + ")"
+      xName = "Month"
     }
   }
    
@@ -161,6 +164,7 @@ function drawScatterplot(data, kind, txt, country) {
     svg.selectAll("circle").remove();
     svg.selectAll("text").remove()
     text = "Year (" + txt + ")"
+    xName = "Year"
   }
 
    else if (kind == 4){
@@ -170,7 +174,7 @@ function drawScatterplot(data, kind, txt, country) {
     svg.selectAll("text").remove()
     console.log("non empty");
     text = "Month (" + txt + ") " + country;
-    
+    xName = "Month"
   }
 
   var yName = "Number of refugees"
@@ -243,19 +247,7 @@ function drawScatterplot(data, kind, txt, country) {
       .attr("cy", yMap)
       .on("mouseover", mouseOver)
       .on("mouseout", mouseOut)
-      //.on("click", click);
-      .on("click", function(d){
-          console.log(d.key)
-         // d3.csv(path, function(csv_data) {
-            if (kind==1){
-              drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
-            }
-            else if(kind==3){
-              drawScatterplot(getDataPerOriginPerMonth(the_csv_data, txt, d.key), 4, d.key.toString(),txt)
-            }
-         //});
-       
-      });
+      .on("click", click);
 
 
  var tooltip =  d3.select("body").append("div")
@@ -269,6 +261,10 @@ function drawScatterplot(data, kind, txt, country) {
          .duration(200)
          .style("opacity", .9);
     d3.select(this).style("fill", "black"); 
+    tooltip.html(xName + ": " + xValue(d) + "</br>" +
+                 yName + ": " + yValue(d))
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
     if (kind==1){
       drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
     }
@@ -285,10 +281,12 @@ function drawScatterplot(data, kind, txt, country) {
   }
 
   function click(d) {
-    d3.csv(path, function(csv_data) {
-      drawScatterplot(getDataPerMonth(csv_data,d.key), d.key.toString())
-      return 1;
-    });
+    if (kind==1){
+      drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
+    }
+    else if(kind==3){
+      drawScatterplot(getDataPerOriginPerMonth(the_csv_data, txt, d.key), 4, d.key.toString(),txt)
+    }
   }
 }
 
