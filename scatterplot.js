@@ -281,14 +281,14 @@ function drawScatterplot(data, kind, txt, country) {
   function getRadius(d){
     var result = 10;
     if (kind == 3 && gdpCountry != null) {
-      var gdp = gdpCountry[xValue(d)]
+      var gdp = Math.round(+gdpCountry[xValue(d)])
       var array = [];
       for(i=1999; i<2016; i++){
-        array[i-1999] = +gdpCountry[i];
+        array[i-1999] = Math.round(+gdpCountry[i]);
       }
       var min = d3.min(array)
-      var max = d3.max(array)
-      result = 5 + ((gdp-min)/(max-min)) * 10
+      var max = d3.max(array)*(1/0.7)
+      result = 5 + ((gdp-min)*(1/0.7)/(max-min)) * 10
     }
     return result;
   }
