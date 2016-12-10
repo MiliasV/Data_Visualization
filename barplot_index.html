@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="barplot_scatterplot.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+
+  </head>
+  <body>
+    
+    <div id="vis">
+      <div>
+ <!----> 
+      <strong id="descr"> Outgoing Refugees from<strong>
+      <select onChange="dropdownSelectionOutgoing(this)" name="countries" id="OriginCountries">
+       onChange="dropdownSelection(this)" 
+      </select>
+      <strong id="descr"> in<strong>
+
+      <select onChange="dropdownSelectionYear(this)" name="Year" id="UniqueYear">
+        onChange="dropdownSelection(this)"
+
+      </select>
+
+      <div>
+      <svg id="barplot" width="960" height="500"></svg>
+
+     <!-- 
+  -->  
+    <script type="text/javascript" src="data.js"></script>  
+    <script type="text/javascript" src="barplot_scatterplot.js"></script>
+  
+  </body>
+</html>
