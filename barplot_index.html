@@ -10,26 +10,41 @@
   <body>
     
     <div id="vis">
-      <div>
  <!----> 
       <strong id="descr"> Outgoing Refugees from<strong>
+
       <select onChange="dropdownSelectionOutgoing(this)" name="countries" id="OriginCountries">
        onChange="dropdownSelection(this)" 
       </select>
-      <strong id="descr"> in<strong>
+      
+      <strong id="descr"> in <strong>
 
-      <select onChange="dropdownSelectionYear(this)" name="Year" id="UniqueYear">
+      <select onChange="dropdownSelectionYearOutgoing(this)" name="Year" id="UniqueYear">
+        onChange="dropdownSelection(this)"
+      </select>
+
+      <svg id="barplotOutgoing" width="960" height="500"></svg>
+        <br>
+
+
+       <strong id="descr"> Incoming Refugees to<strong>
+      <select onChange="dropdownSelectionIncoming(this)" name="countries" id="Ingoing">
+       onChange="dropdownSelection(this)" 
+      </select>
+      <strong id="descr"> in <strong>
+
+      <select onChange="dropdownSelectionYearIncoming(this)" name="Year" id="UniqueYear">
         onChange="dropdownSelection(this)"
 
       </select>
-
-      <div>
-      <svg id="barplot" width="960" height="500"></svg>
+    </br>
+      <svg id="barplotIncoming" width="960" height="500"></svg>
 
      <!-- 
   -->  
     <script type="text/javascript" src="data.js"></script>  
     <script type="text/javascript" src="barplot_scatterplot.js"></script>
-  
+  </div>
+
   </body>
 </html>
