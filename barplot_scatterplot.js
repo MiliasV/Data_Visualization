@@ -16,8 +16,8 @@ var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 var data = null //global variable that contains all the dataset
 
 d3.csv(refugeesPath, function(csv_data){
-data = csv_data
-createDropdown(data);
+  data = csv_data
+  createDropdown(data);
 });
 
 
@@ -36,11 +36,8 @@ function createDropdown(csv_data){
         .append("option")
         .attr("label",row[value])
         .attr("id", row[value])
-
     });
-
   })
-      
 };
 
 //Initialization - global variables

@@ -6,6 +6,11 @@ var margin = {top: 20, right: 60, bottom: 30, left: 80};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
+
+ var tooltip =  d3.select("body").append("div")
+                  .attr("class", "tooltip")
+                  .style("display", "inline");
+
 //initialization of empty array
 zeroArr = [];
 
@@ -28,7 +33,6 @@ function addMissingValues(array){
   }
   return array;
 }
-
 
 function createSvg(text, kind){
    return d3.select(text)
@@ -192,8 +196,25 @@ function getDataPerOriginPerMonth(csv_data, Origin, Year){
   //return dataPerOrigin[0].values; 
 }
 
+// kind can be "outgoing" or "incoming"
+function getDataPerYearPerOrigin(year, kind){
+  var countriesPerOrigin = d3.nest()
+          .key(function(d) {return d["Year"]})
+          .key(function(d){ return d["Origin"]})
+          .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
+          .entries(the_csv_data)
+          .filter(function(d){ return d.key == year})[0].values
+  countriesPerOrigin.sort(function(a, b){
+                                            if(a.values < b.values) return 1;
+                                            if(a.values > b.values) return -1;
+                                            return 0;
+                                        });
+
+  return countriesPerOrigin.slice(0, 20);
+}
+
+
 function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
-  console.log(Country)
   if (flag==0){
     var fromColumn = "Origin"
   }
@@ -209,9 +230,6 @@ function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
             .filter(function(d){  return (d.key == Country)})
   var dataPerOriginPerMonth = dataPerOrigin[0].values
                                               .filter(function(d){return d.key == Year})
-  console.log(dataPerOriginPerMonth)
- 
-  console.log(dataPerOriginPerMonth[0].values)
 
   var tmp = dataPerOriginPerMonth[0]
            for (d in tmp.values){
@@ -221,11 +239,111 @@ function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
   //return dataPerOrigin[0].values; 
 }
 
+
+function drawBarPlot(year){
+  var yName = "Number of refugees"
+  var xName = "Country"
+  var title = "Outgoing refugees per country in " + year
+  var xScale = d3.scale.ordinal().rangeRoundBands([0, width], .05); // value -> display
+      xMap = function(d) { return xScale(d.key);}, // data -> display
+      xAxis = d3.svg
+                .axis()
+                .scale(xScale)
+                .orient("bottom")
+  // setup y
+  var yScale = d3.scale.linear().range([viewHeight, 0]), // value -> display
+      yMap = function(d) {return yScale(d.values);}, // data -> display
+      yAxis = d3.svg
+                .axis()
+                .scale(yScale)
+                .orient("left");
+
+  var svg = svg2;
+
+  if(!d3.select("#month").empty()){
+    svg.selectAll(".bar").remove();
+    svg.selectAll("text").remove();
+  }
+
+  var g = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+   //Get the data
+  var countriesPerOriginPerYear = getDataPerYearPerOrigin(year, "outgoing")
+
+  xScale.domain(countriesPerOriginPerYear.map(function(d) { return d.key; }));
+  var yMax = d3.max(countriesPerOriginPerYear, function(d) { return d.values; });
+  yScale.domain([0, yMax + 0.1*yMax]);
+
+  g.append("g")
+      .attr("class", "xAxis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+      .selectAll("text")
+      .attr("y", 0)
+      .attr("x", 9)
+      .attr("dy", ".35em")
+      .attr("transform", "rotate(90)")
+      .style("text-anchor", "start");
+
+  g.append("g")
+      .attr("class", "yAxis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+
+//Title of the graph
+  svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top - 20))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "15px") 
+        .style("text-decoration", "underline")  
+        .text(title);
+
+  g.selectAll(".bar")
+    .data(countriesPerOriginPerYear)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) {  return xMap(d); })
+      .attr("y", function(d) {  return yMap(d); })
+      .attr("width", xScale.rangeBand())
+      .attr("height", function(d) { return height - yMap(d); })
+      .on("mouseover", mouseOver)
+      .on("mouseout", mouseOut);
+
+  function mouseOver (d){
+    tooltip.transition()
+         .duration(200)
+         .style("opacity", .9);
+    d3.select(this).style("fill", "LightSkyBLue"); 
+    tooltip.html(getTextMouseOver(d))
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+  }
+
+  function getTextMouseOver(d) {
+    var result =  xName + ": " + d.key + "</br>" + 
+                  yName + ": " + d.values;
+    return result;
+  }
+
+  function mouseOut(d) {
+    tooltip.transition()
+           .duration(500)
+           .style("opacity", 0);
+    d3.select(this).style("fill", "steelblue"); 
+  }
+}
+
+
 // Draw a scatter plot using the given data
 function drawScatterplot(data, kind, txt, country) {
+
   var xName = ""
   var gdpCountry = null
-  console.log(data)
   //console.log(data)
   // Whole world per Year
   if(kind == 1){
@@ -372,10 +490,6 @@ function drawScatterplot(data, kind, txt, country) {
       .on("click", click);
 
 
- var tooltip =  d3.select("body").append("div")
-                  .attr("class", "tooltip")
-                  .style("display", "inline");
-
   function getRadius(d){
     var result = 10;
     if ((kind == 3 || kind == 4) && gdpCountry != null) {
@@ -406,7 +520,8 @@ function drawScatterplot(data, kind, txt, country) {
             .style("left", (d3.event.pageX + 5) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
     if (kind==1){
-      drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
+      //drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
+      drawBarPlot(d.key)
     }
     else if(kind==3){
       drawScatterplot(getDataPerCountryPerMonth(the_csv_data, txt, d.key, 0), 5, d.key.toString(),txt)
