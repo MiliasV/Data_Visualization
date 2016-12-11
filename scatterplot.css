@@ -19,7 +19,8 @@ body {
 .dot {
   stroke-width: 0.25pt;
   /*stroke: #555;*/
-  fill: DarkGray ;
+  /*fill: DarkGray ;*/
+   fill:steelblue;
 
 }
 
@@ -44,3 +45,6 @@ select {
   pointer-events: none;
 }
 
+#descr {
+  font-size:15px;
+}

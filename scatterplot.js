@@ -6,6 +6,30 @@ var margin = {top: 20, right: 60, bottom: 30, left: 80};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
+//initialization of empty array
+zeroArr = [];
+
+for (var i = 1999; i < 2016; i++) {
+    zeroArr.push({
+        key: i,
+        values: 0,
+    });
+}
+
+function addMissingValues(array){
+  for (i =1999; i<2016; i++){
+    var contains = false
+    for(i=0; i<array.length ; i++){
+      if(array[i].values == i) contains = true;
+    }
+    if (!contains){
+      array.splice(i-1999, 0, {key:i, values:0});
+    }
+  }
+  return array;
+}
+
+
 function createSvg(text, kind){
    return d3.select(text)
             .attr("width", viewWidth + margin.left + margin.right)
@@ -18,8 +42,10 @@ function createSvg(text, kind){
 //Creation of the svgs
 var svg1 = createSvg("#svgFirst", "year") //Whole world per Year, kind = 1
 var svg2 = createSvg("#svgSecond", "month") //Whole world per Month, kind = 2
-var svg3 = createSvg("#svgThird", "year") //Country per Year, kind = 3
-var svg4 = createSvg("#svgFourth", "year") //Country per Month, kind = 4
+var svg3 = createSvg("#svgThird", "year") //Outgoing-Country per Year, kind = 3
+var svg4 = createSvg("#svgFourth", "year") //Incoming-Country per Year, kind = 4
+var svg5 = createSvg("#svgFifth", "year") //Outgoing-Country per Month, kind = 5
+var svg6 = createSvg("#svgSixth", "year") //Incoming-Country per Month, kind = 6
 
 // Read the dataset from the csv file
 var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
@@ -39,8 +65,6 @@ function getGdp(country){
   }
   return result;
 }
-
-
 
 var the_csv_data = null;
 
@@ -75,12 +99,15 @@ function createDropdown(csv_data){
 function dropdownSelectionOutgoing(s){
   var country = s[s.selectedIndex].id; 
   drawScatterplot(getDataPerOrigin(the_csv_data, country, "Origin"),3, country)
+  drawScatterplot(getDataPerOrigin(the_csv_data, country, "Country"),4, country)
 }
 
+/*
 function dropdownSelectionIncoming(s){
   var country = s[s.selectedIndex].id; 
   drawScatterplot(getDataPerOrigin(the_csv_data, country, "Country"),3, country)
 }
+*/
 // Get the year as key and the sum of the number of refugees in that year
 function getDataPerYear(csv_data) {
   var temp = d3.nest()
@@ -119,7 +146,6 @@ function getDataPerMonth(csv_data, Year){
   for (d in tmp.values){
     tmp.values[d].key = monthsToNumbers(tmp.values[d].key)    
   }
-   
   return tmp.values
 };
 
@@ -127,12 +153,22 @@ function getDataPerOrigin(csv_data, Origin, column){
   var dataPerOrigin = d3.nest()
             .key(function(d) {return d[column]})
             .key(function(d){ return d.Year})
-
             .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
             .entries(csv_data)
             .filter(function(d){ return d.key == Origin})
-  console.log(dataPerOrigin[0].values)
-  return dataPerOrigin[0].values; 
+
+  console.log(dataPerOrigin)
+  console.log(Origin, column)
+  if (dataPerOrigin.length==0){
+    return zeroArr;
+  }
+  /*
+  else if(dataPerOrigin.length != 17){
+    console.log(dataPerOrigin[0].values)
+    //return addMissingValues(dataPerOrigin[0].values)
+  }*/
+  //console.log(dataPerOrigin[0].values)
+  else return dataPerOrigin[0].values; 
 }
 
 function getDataPerOriginPerMonth(csv_data, Origin, Year){
@@ -156,18 +192,47 @@ function getDataPerOriginPerMonth(csv_data, Origin, Year){
   //return dataPerOrigin[0].values; 
 }
 
+function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
+  console.log(Country)
+  if (flag==0){
+    var fromColumn = "Origin"
+  }
+  else{
+    var fromColumn = "Country"
+  }
+  var dataPerOrigin = d3.nest()
+            .key(function(d) { return d[fromColumn]})
+            .key(function(d){ return d.Year})
+            .key(function(d){ return d.Month})
+            .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
+            .entries(csv_data)
+            .filter(function(d){  return (d.key == Country)})
+  var dataPerOriginPerMonth = dataPerOrigin[0].values
+                                              .filter(function(d){return d.key == Year})
+  console.log(dataPerOriginPerMonth)
+ 
+  console.log(dataPerOriginPerMonth[0].values)
+
+  var tmp = dataPerOriginPerMonth[0]
+           for (d in tmp.values){
+              tmp.values[d].key = monthsToNumbers(tmp.values[d].key)    
+            }  
+  return tmp.values
+  //return dataPerOrigin[0].values; 
+}
 
 // Draw a scatter plot using the given data
 function drawScatterplot(data, kind, txt, country) {
   var xName = ""
-  var gdpCountry = ""
+  var gdpCountry = null
   console.log(data)
+  //console.log(data)
   // Whole world per Year
   if(kind == 1){
     var svg = svg1;
     svg.selectAll("circle").remove();
     svg.selectAll("text").remove()
-    text = "Year (World)"
+    text = "Refugees per Year - World"
     xName = "Year"
   }
   // Whole world per Month
@@ -175,9 +240,11 @@ function drawScatterplot(data, kind, txt, country) {
     var svg = svg2;
     if(!d3.select("#month").empty()){
       svg.selectAll("circle").remove();
-      svg.selectAll("text").remove()
-      console.log("non empty");
-      text = "Month (" + txt + ")"
+      svg.selectAll("text").remove();
+      //console.log("non empty");
+      //text = "Month (" + txt + ")"
+      text = "Refugees per Month (" + txt + ") - World"
+
       xName = "Month"
     }
   }
@@ -187,27 +254,57 @@ function drawScatterplot(data, kind, txt, country) {
     svg.selectAll("g").remove()
     svg.selectAll("circle").remove();
     svg.selectAll("text").remove()
-    text = "Year (" + txt + ")"
+    //text = "Year (" + txt + ")"
+    text = "Outgoing Refugees per Year - " + txt  
+
+    xName = "Year"
+    gdpCountry = getGdp(txt)
+
+  }
+  // Incoming Refugees per Year
+   else if (kind == 4){
+    var svg = svg4;
+    svg.selectAll("g").remove()
+    svg.selectAll("circle").remove();
+    svg.selectAll("text").remove()
+    //console.log("non empty");
+    //text = "Month (" + txt + ") " + country;
+    text = "Incoming Refugees per Year - " + txt ;
+
     xName = "Year"
     gdpCountry = getGdp(txt)
   }
-  // Country per Month
-   else if (kind == 4){
-    var svg = svg4;
+
+  else if (kind == 5){
+    var svg = svg5;
     svg.selectAll("circle").remove();
     svg.selectAll("text").remove()
-    console.log("non empty");
-    text = "Month (" + txt + ") " + country;
-    xName = "Month"
+    //console.log("non empty");
+    text = "Outgoing Refugees in " + txt + " - " + country;
+    //text = "Incoming Refugees per Year - " + txt ;
+
+    xName = "Year"
+    gdpCountry = getGdp(txt)
   }
 
-  var yName = "Number of refugees"
+   else if (kind == 6){
+    var svg = svg6;
+    svg.selectAll("circle").remove();
+    svg.selectAll("text").remove()
+    //console.log("non empty");
+    text = "Incoming Refugees in " + txt + " - " + country;
+    //text = "Incoming Refugees per Year - " + txt ;
+    xName = "Year"
+    gdpCountry = getGdp(txt)
+  }
+
+  var yName = "Number of Refugees"
   var xValue = function(d) { return parseInt(d.key, 10);}
   var yValue = function(d) { return d.values;}
-  var xMin = d3.min(data, xValue)
-  var xMax = d3.max(data, xValue)
+  var xMin = d3.min(data, xValue)//1998//
+  var xMax = d3.max(data, xValue)//2016//
   var yMin = d3.min(data, yValue)
-  var yMax = d3.max(data, yValue)
+  var yMax = Math.max(d3.max(data, yValue), 10)
 
   var xScale = d3.scale.linear().range([0, viewWidth]), // value -> display
       xMap = function(d) { return xScale(xValue(d));}, // data -> display
@@ -225,7 +322,7 @@ function drawScatterplot(data, kind, txt, country) {
                 .scale(yScale)
                 .orient("left")
 
-  xScale.domain([xMin, xMax]);
+  xScale.domain([xMin - 1, xMax + 1]);
   yScale.domain([yMin-(yMax-yMin)/10, yMax+(yMax-yMin)/10]);
 
   // x-axis
@@ -244,7 +341,7 @@ function drawScatterplot(data, kind, txt, country) {
   svg.append("g")
       .attr("class", "yAxis")
       .call(yAxis)
-    .append("text")
+      .append("text")
       .attr("class", "label")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
@@ -255,11 +352,12 @@ function drawScatterplot(data, kind, txt, country) {
 //Title of the graph
   svg.append("text")
         .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top - 50))
+        .attr("y", 0 - (margin.top - 20))
         .attr("text-anchor", "middle")  
-        .style("font-size", "30px") 
+        .style("font-size", "15px") 
         .style("text-decoration", "underline")  
-        .text("Refugees  per " + text);//+ kind + "(" + text + ")");
+        .text(text);//+ kind + "(" + text + ")");
+        //.text("Refugees  per " + text);//+ kind + "(" + text + ")");
 
   svg.selectAll("circle")
       .data(data)
@@ -280,7 +378,7 @@ function drawScatterplot(data, kind, txt, country) {
 
   function getRadius(d){
     var result = 10;
-    if (kind == 3 && gdpCountry != null) {
+    if ((kind == 3 || kind == 4) && gdpCountry != null) {
       var gdp = Math.round(+gdpCountry[xValue(d)])
       var array = [];
       for(i=1999; i<2016; i++){
@@ -288,8 +386,12 @@ function drawScatterplot(data, kind, txt, country) {
       }
       var min = d3.min(array)
       var max = d3.max(array)*(1/0.7)
+      //console.log(data)
+      //console.log(max, gdp, gdpCountry)
+
       result = 5 + ((gdp-min)*(1/0.7)/(max-min)) * 10
     }
+    console.log(result)
     return result;
   }
 
@@ -307,13 +409,16 @@ function drawScatterplot(data, kind, txt, country) {
       drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
     }
     else if(kind==3){
-      drawScatterplot(getDataPerOriginPerMonth(the_csv_data, txt, d.key), 4, d.key.toString(),txt)
+      drawScatterplot(getDataPerCountryPerMonth(the_csv_data, txt, d.key, 0), 5, d.key.toString(),txt)
+    }
+    else if(kind==4){
+      drawScatterplot(getDataPerCountryPerMonth(the_csv_data, txt, d.key, 1), 6, d.key.toString(),txt)
     }
   }
 
   function getTextMouseOver(d) {
     var result = xName + ": " + xValue(d) + "</br>" + yName + ": " + yValue(d);
-    if (kind == 3) {
+    if ((kind == 3 || kind == 4)) {
       if (gdpCountry != null){
         result += "</br>" + "GDP per capia:" + Math.round(+gdpCountry[xValue(d)]) + " US dollar";
       }
@@ -328,7 +433,7 @@ function drawScatterplot(data, kind, txt, country) {
     tooltip.transition()
            .duration(500)
            .style("opacity", 0);
-    d3.select(this).style("fill", "DarkGray"); 
+    d3.select(this).style("fill", "steelblue"); 
   }
 
   function click(d) {
