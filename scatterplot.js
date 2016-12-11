@@ -2,7 +2,7 @@ var viewWidth = 2*window.innerWidth/5;
 var viewHeight = 2*window.innerHeight/5;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 20, right: 60, bottom: 30, left: 80};
+var margin = {top: 20, right: 60, bottom: 50, left: 80};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
@@ -244,7 +244,7 @@ function drawBarPlot(year){
   var yName = "Number of refugees"
   var xName = "Country"
   var title = "Outgoing refugees per country in " + year
-  var xScale = d3.scale.ordinal().rangeRoundBands([0, width], .05); // value -> display
+  var xScale = d3.scale.ordinal().rangeRoundBands([0, viewWidth], .05); // value -> display
       xMap = function(d) { return xScale(d.key);}, // data -> display
       xAxis = d3.svg
                 .axis()
@@ -266,7 +266,7 @@ function drawBarPlot(year){
   }
 
   var g = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
    //Get the data
   var countriesPerOriginPerYear = getDataPerYearPerOrigin(year, "outgoing")
 
@@ -276,13 +276,13 @@ function drawBarPlot(year){
 
   g.append("g")
       .attr("class", "xAxis")
-      .attr("transform", "translate(0," + height + ")")
+      .attr("transform", "translate(0," + viewHeight + ")")
       .call(xAxis)
       .selectAll("text")
-      .attr("y", 0)
-      .attr("x", 9)
-      .attr("dy", ".35em")
-      .attr("transform", "rotate(90)")
+      .attr("y", 6)
+      .attr("x", 0)
+      .attr("dy", ".75em")
+      .attr("transform", "rotate(25)")
       .style("text-anchor", "start");
 
   g.append("g")
@@ -310,7 +310,7 @@ function drawBarPlot(year){
       .attr("x", function(d) {  return xMap(d); })
       .attr("y", function(d) {  return yMap(d); })
       .attr("width", xScale.rangeBand())
-      .attr("height", function(d) { return height - yMap(d); })
+      .attr("height", function(d) { return viewHeight - yMap(d); })
       .on("mouseover", mouseOver)
       .on("mouseout", mouseOut);
 
@@ -487,7 +487,6 @@ function drawScatterplot(data, kind, txt, country) {
       .attr("cy", yMap)
       .on("mouseover", mouseOver)
       .on("mouseout", mouseOut)
-      .on("click", click);
 
 
   function getRadius(d){
