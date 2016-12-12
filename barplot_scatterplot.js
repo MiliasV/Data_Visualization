@@ -18,6 +18,8 @@ var country = null
 var year = null
 
 d3.csv(refugeesPath, function(csv_data){
+/*
+<<<<<<< HEAD
 data = csv_data
 createDropdown(data);
 
@@ -35,6 +37,13 @@ console.log(year)
 drawBarplot(country, year, 0)
 drawBarplot(country, year, 1)
 
+=======
+  data = csv_data
+  createDropdown(data);
+>>>>>>> 6583856c377bbc0fb93ddade7012223fc468106b
+*/
+  data = csv_data
+  createDropdown(data);
 });
 
 function getURLParameter(name) {
@@ -56,10 +65,10 @@ function createDropdown(csv_data){
         .append("option")
         .attr("label",row[value])
         .attr("id", row[value])
-
     });
-
   })
+/*
+<<<<<<< HEAD
 
   console.log(country,"rfsdgasfsa")
 d3.select("#OriginCountries")
@@ -67,6 +76,9 @@ d3.select("#OriginCountries")
   .attr("selected","selected")
   .attr("label",country)
 
+=======
+>>>>>>> 6583856c377bbc0fb93ddade7012223fc468106b
+*/
 };
 
 //Initialization - global variables
