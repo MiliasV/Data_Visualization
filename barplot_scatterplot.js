@@ -14,12 +14,32 @@ var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
 var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 
 var data = null //global variable that contains all the dataset
+var country = null
+var year = null
 
 d3.csv(refugeesPath, function(csv_data){
 data = csv_data
 createDropdown(data);
+
+country ="Afghanistan"
+year = 1999
+
+//var qs = new Querystring();
+
+country = getURLParameter("country");
+year = getURLParameter("year");
+
+console.log(country)
+console.log(year)
+
+drawBarplot(country, year, 0)
+drawBarplot(country, year, 1)
+
 });
 
+function getURLParameter(name) {
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+}
 
 //Creation of the Dropdown menu, with the data from
 //the column that is specified in the variable menu
@@ -40,12 +60,19 @@ function createDropdown(csv_data){
     });
 
   })
-      
+
+  console.log(country,"rfsdgasfsa")
+d3.select("#OriginCountries")
+  .append("option")
+  .attr("selected","selected")
+  .attr("label",country)
+
 };
 
 //Initialization - global variables
-var country ="Afghanistan"
-var year = 1999
+
+
+
 var flag = 0 //flag to define if we draw a barplot for 
                 // outgoing or incoming refugees
                 //flag=0 => outgoing

@@ -204,7 +204,7 @@ function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
             .key(function(d) { return d[fromColumn]})
             .key(function(d){ return d.Year})
             .key(function(d){ return d.Month})
-            .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
+            .rollup(function(d) { return d3.sum(d, function(g){return g.Value})})
             .entries(csv_data)
             .filter(function(d){  return (d.key == Country)})
   var dataPerOriginPerMonth = dataPerOrigin[0].values
@@ -283,7 +283,7 @@ function drawScatterplot(data, kind, txt, country) {
     text = "Outgoing Refugees in " + txt + " - " + country;
     //text = "Incoming Refugees per Year - " + txt ;
 
-    xName = "Year"
+    xName = "Month"
     gdpCountry = getGdp(txt)
   }
 
@@ -294,7 +294,7 @@ function drawScatterplot(data, kind, txt, country) {
     //console.log("non empty");
     text = "Incoming Refugees in " + txt + " - " + country;
     //text = "Incoming Refugees per Year - " + txt ;
-    xName = "Year"
+    xName = "Month"
     gdpCountry = getGdp(txt)
   }
 
@@ -362,15 +362,25 @@ function drawScatterplot(data, kind, txt, country) {
   svg.selectAll("circle")
       .data(data)
       .enter()
+
       .append("circle")
+
       .attr("class", "dot")
       .attr("r", getRadius)//function(d){console.log(d); return d.values/60000})
       .attr("cx", xMap)
       .attr("cy", yMap)
       .on("mouseover", mouseOver)
       .on("mouseout", mouseOut)
-      .on("click", click);
-
+      //.on("click", function(){d3.select(this).attr("xlink:href", function(d) {return "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html" })}) 
+       .on("click", function(){
+          if(kind==5){
+            console.log(txt)
+            console.log(country)
+            var url = "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html?country="+country + "&year=" +txt;
+            window.location = url; 
+          //.on("click", click);
+        }
+  });
 
  var tooltip =  d3.select("body").append("div")
                   .attr("class", "tooltip")
