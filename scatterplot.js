@@ -489,19 +489,17 @@ function drawScatterplot(data, kind, txt, country) {
       .attr("cy", yMap)
       .on("mouseover", mouseOver)
       .on("mouseout", mouseOut)
-<<<<<<< HEAD
+
       //.on("click", function(){d3.select(this).attr("xlink:href", function(d) {return "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html" })}) 
-       .on("click", function(){
-          if(kind==5){
+       .on("click", function(d){
+          if(kind==3 || kind==4){
             console.log(txt)
             console.log(country)
-            var url = "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html?country="+country + "&year=" +txt;
+            var url = "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html?country="+ txt + "&year=" +xValue(d) + "&kind="+kind;
             window.location = url; 
           //.on("click", click);
         }
   });
-=======
->>>>>>> 6583856c377bbc0fb93ddade7012223fc468106b
 
 
   function getRadius(d){
