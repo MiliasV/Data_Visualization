@@ -27,7 +27,7 @@ body {
 }
 
 select {
-	min-width: 100px;
+	min-width: 10px;
 	margin-left: 10px;
 	margin-right: 25px;
 }

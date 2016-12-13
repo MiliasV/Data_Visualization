@@ -1,9 +1,17 @@
+var viewWidth = 2*window.innerWidth/5;
+var viewHeight = 2*window.innerHeight/5;
+//d3.select(window).on("resize", resize);
+var margin = {top: 20, right: 20, bottom: 20, left: 40}
 
-var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
+/*var svg = d3.select("svg"),
+    //width = +svg.attr("width") - margin.left - margin.right,
+    width = viewWidth - margin.left - margin.right,
+
     height = +svg.attr("height") - margin.top - margin.bottom;
     console.log(height)
+*/
+var width = viewWidth - margin.left - margin.right;
+var height = viewHeight - margin.top - margin.bottom;
 
 var svg1 = d3.select("#barplotOutgoing") 
 var svg2 = d3.select("#barplotIncoming") 
@@ -16,35 +24,43 @@ var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 var data = null //global variable that contains all the dataset
 var country = null
 var year = null
+var kind = null
 
 d3.csv(refugeesPath, function(csv_data){
-/*
-<<<<<<< HEAD
-data = csv_data
-createDropdown(data);
 
-country ="Afghanistan"
-year = 1999
+  var svg1 = createSvg("#barplotOutgoing", 0) 
+  var svg2 = createSvg("#barplotIncoming", 1) 
 
-//var qs = new Querystring();
 
-country = getURLParameter("country");
-year = getURLParameter("year");
+  country ="Afghanistan"
+  year = 1999
 
-console.log(country)
-console.log(year)
+  //var qs = new Querystring();
 
-drawBarplot(country, year, 0)
-drawBarplot(country, year, 1)
+  country = getURLParameter("country");
+  year = getURLParameter("year");
+  kind = getURLParameter("kind")
 
-=======
+  console.log(country)
+  console.log(year)
+ 
   data = csv_data
   createDropdown(data);
->>>>>>> 6583856c377bbc0fb93ddade7012223fc468106b
-*/
-  data = csv_data
-  createDropdown(data);
+
+  drawBarplot(country, year, 0)
+  drawBarplot(country, year, 1)
+
 });
+
+
+function createSvg(text, kind){
+   return d3.select(text)
+            .attr("width", window.innerWidth)//viewWidth + margin.left + margin.right)
+            .attr("height", 600)//viewHeight + margin.top + margin.bottom)
+            .append("g")
+            .attr("id", kind)
+            .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
+}
 
 function getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
@@ -53,38 +69,97 @@ function getURLParameter(name) {
 //Creation of the Dropdown menu, with the data from
 //the column that is specified in the variable menu
 function createDropdown(csv_data){
+  console.log("createDropdown")
+  var distinctMenus = 0
+  var str=""
   var menu = ["OriginCountries", "UniqueYear", "Ingoing", "UniqueYear"]
   menu.forEach(function(value, index, array){
-    csv = csv_data.filter(function(row){
-         // console.log(row[value])
+
+      csv = csv_data.filter(function(row){
           return row[value]
-        })
-    csv.forEach(function(row){
-      str = "#" + value
-      d3.selectAll(str)
-        .append("option")
-        .attr("label",row[value])
-        .attr("id", row[value])
-    });
+      })
+
+      csv.forEach(function(row){
+        if(value =="UniqueYear"){
+          if (distinctMenus==1){
+            str = "#" + value + "2"
+          }
+          else{
+            str = "#" + value
+          }
+        }
+        else{
+          str = "#" + value 
+          }
+          console.log(str)
+
+          d3.select(str)
+            .append("option")
+            .attr("label",row[value])
+            .attr("id", row[value])
+      });
+      if(value == "UniqueYear"){
+          if(distinctMenus == 0){
+              distinctMenus=1;
+              str = ""
+          }
+        }
+        console.log("done")
+     
   })
-/*
-<<<<<<< HEAD
 
-  console.log(country,"rfsdgasfsa")
-d3.select("#OriginCountries")
-  .append("option")
-  .attr("selected","selected")
-  .attr("label",country)
+  //Preselection (We can use a function)  
 
-=======
->>>>>>> 6583856c377bbc0fb93ddade7012223fc468106b
-*/
-};
+    try{
+      console.log("preselection")
+      d3.select("#OriginCountries")
+        //.selectAll("option")
+        .select("#" +country)
+        //.select("[label]=" + country)
+        //.append("option")
+        .attr("selected","selected")
+        //.attr("label",country)
+    }
+    catch(err){
+      console.log("Not exist: ",err)
+    }   
+
+    try{
+      d3.select("#Ingoing")
+        //.append("option")
+        .select("#" + country)
+        .attr("selected","selected")
+        //.attr("label",country)
+    }
+    catch(err){
+      console.log("Not exist: ",err)
+    }   
+
+    try{
+      d3.select("#UniqueYear")
+        //.selectAll("#option")
+        .select("#2010")// + year.toString())
+
+        .attr("selected","selected")
+        //.attr("label",year)
+    }
+    catch(err){
+      console.log("Not exist: ",err)
+    }
+    try{
+      d3.select("#UniqueYear2")
+        //.append("option")
+         .select("#" + year)
+          .attr("selected","selected")
+        //attr("label",year)
+      }
+      catch(err){
+      console.log("Not exist: ",err)
+    }
+
+}
 
 //Initialization - global variables
-
-
-
 var flag = 0 //flag to define if we draw a barplot for 
                 // outgoing or incoming refugees
                 //flag=0 => outgoing
@@ -128,39 +203,53 @@ function getcountriesPerOriginPerYear(data, Origin, Year, flag){
     var fromColumn = "Country"
     var toColumn = "Origin"
   }
-  var countriesPerOrigin = d3.nest()
-            .key(function(d) {return d[fromColumn]})
-            .key(function(d){ return d.Year})
-            .key(function(d) {return d[toColumn]})
-            .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
-            .entries(data)
-            .filter(function(d){ return d.key == Origin})
-  //console.log(countriesPerOrigin)
-  return countriesPerOrigin[0].values.filter(function(d){return d.key == Year})[0].values
+  try{
+    var countriesPerOrigin = d3.nest()
+              .key(function(d) {return d[fromColumn]})
+              .key(function(d){ return d.Year})
+              .key(function(d) {return d[toColumn]})
+              .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
+              .entries(data)
+              .filter(function(d){ return d.key == Origin})[0].values
+              .filter(function(d){return d.key == Year})[0].values
+    console.log(countriesPerOrigin)
+   
+    countriesPerOrigin.sort(function(x, y){
+        return d3.descending(x.value, y.value)})
+
+    return countriesPerOrigin; //countriesPerOrigin[0].values.filter(function(d){return d.key == Year})[0].values
+  }
+  catch(err){
+    console.log("Not exist", err)
+
+  }
+
 }
 
 function drawBarplot(Origin, Year, flag){
+  if (flag==0){
+    svg = svg1
+  }
+  else{
+    svg=svg2
+  }
+  //remove the previous barblot
+  svg.selectAll("g").remove() 
 
-if (flag==0){
-  svg = svg1
-}
-else{
-  svg=svg2
-}
-//remove the previous barblot
-svg.selectAll("g").remove()
+  try{  
 
-var g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  var g = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
 
- console.log(Origin, Year)
- //Get the data
- var countriesPerOriginPerYear = getcountriesPerOriginPerYear(data, Origin, Year, flag)
+   console.log(Origin, Year)
+   //Get the data
+   var countriesPerOriginPerYear = getcountriesPerOriginPerYear(data, Origin, Year, flag) 
 
-//  console.log(countriesPerOriginPerYear)
+  //  console.log(countriesPerOriginPerYear)
 
   x.domain(countriesPerOriginPerYear.map(function(d) { return d.key; }));
   y.domain([0, d3.max(countriesPerOriginPerYear, function(d) { return d.value; })]);
+
 
   g.append("g")
       .attr("class", "axis axis--x")
@@ -191,7 +280,11 @@ var g = svg.append("g")
       .attr("y", function(d) { console.log(height);return y(d.value); })
       .attr("width", x.bandwidth())
       .attr("height", function(d) { return height - y(d.value); });
-    
+ }
+ catch(err){
+    svg.selectAll("g").remove()
 
+    console.log("Not defined", err)
+  }
 };
 
