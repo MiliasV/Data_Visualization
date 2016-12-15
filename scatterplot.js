@@ -492,11 +492,11 @@ function drawScatterplot(data, kind, txt, country) {
 
       //.on("click", function(){d3.select(this).attr("xlink:href", function(d) {return "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html" })}) 
        .on("click", function(d){
-          if(kind==3 || kind==4){
+          if(kind==3 || kind==4 ){
             console.log(txt)
             console.log(country)
-            var url = "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html?country="+ txt + "&year=" +xValue(d) + "&kind="+kind;
-            window.location = url; 
+            var url = "barplot_index.html?country="+ txt + "&year=" +xValue(d) + "&kind="+kind;
+            window.open(url,'_blank'); 
           //.on("click", click);
         }
   });

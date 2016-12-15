@@ -89,7 +89,7 @@ function createDropdown(csv_data){
           }
         }
         else{
-          str = "#" + value 
+          str = "#"  +value 
           }
           console.log(str)
 
@@ -114,7 +114,7 @@ function createDropdown(csv_data){
       console.log("preselection")
       d3.select("#OriginCountries")
         //.selectAll("option")
-        .select("#" +country)
+        .select("#" + country)
         //.select("[label]=" + country)
         //.append("option")
         .attr("selected","selected")
@@ -136,10 +136,11 @@ function createDropdown(csv_data){
     }   
 
     try{
+      var thisId = "[id = '" + year +"']"
+      var selectString = "" + thisId
       d3.select("#UniqueYear")
         //.selectAll("#option")
-        .select("#2010")// + year.toString())
-
+        .select(selectString)//("#" + 2010)// + year.toString())
         .attr("selected","selected")
         //.attr("label",year)
     }
@@ -147,9 +148,11 @@ function createDropdown(csv_data){
       console.log("Not exist: ",err)
     }
     try{
+      var thisId = "[id = '" + year +"']"
+      var selectString = "" + thisId
       d3.select("#UniqueYear2")
         //.append("option")
-         .select("#" + year)
+         .select(selectString)
           .attr("selected","selected")
         //attr("label",year)
       }
