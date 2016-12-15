@@ -104,27 +104,35 @@ function createDropdown(csv_data){
               str = ""
           }
         }
-        console.log("done")
+        console.log("done",str)
+        /*
+        d3.select(str)
+          .append("option")
+          .attr("label","")
+          .attr("selected", "selected") 
+      */
+  
      
-  })
+  } 
 
-  //Preselection (We can use a function)  
+     )
 
+  //Preselection (We can use a function) 
+
+  //First country dropdown Selection
     try{
       var thisId = "[id = '" + country +"']"
       var selectString = "" + thisId
 
       d3.select("#OriginCountries")
-        //.selectAll("option")
-        .select(selectString)
-        //.select("[label]=" + country)
-        //.append("option")
+        .select(selectString)        
         .attr("selected","selected")
-        //.attr("label",country)
     }
     catch(err){
       console.log("Not exist: ",err)
     }   
+
+  //Second country dropdown Selection
 
     try{
       var thisId = "[id = '" + country +"']"
@@ -140,9 +148,12 @@ function createDropdown(csv_data){
       console.log("Not exist: ",err)
     }   
 
+  //First year dropdown Selection
+
     try{
       var thisId = "[id = '" + year +"']"
       var selectString = "" + thisId
+
       d3.select("#UniqueYear")
         //.selectAll("#option")
         .select(selectString)//("#" + 2010)// + year.toString())
@@ -152,6 +163,9 @@ function createDropdown(csv_data){
     catch(err){
       console.log("Not exist: ",err)
     }
+
+  //Second year dropdown Selection
+
     try{
       var thisId = "[id = '" + year +"']"
       var selectString = "" + thisId
