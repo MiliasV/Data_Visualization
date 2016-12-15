@@ -312,7 +312,13 @@ function drawBarPlot(year){
       .attr("width", xScale.rangeBand())
       .attr("height", function(d) { return viewHeight - yMap(d); })
       .on("mouseover", mouseOver)
-      .on("mouseout", mouseOut);
+      .on("mouseout", mouseOut)
+      .on("click", function(d){
+            console.log(d.key)
+            console.log(d.values)
+            var url = "barplot_index.html?country="+ d.key + "&year=" +year 
+            window.open(url,'_blank') })
+          //.on("click", click);
 
   function mouseOver (d){
     tooltip.transition()
