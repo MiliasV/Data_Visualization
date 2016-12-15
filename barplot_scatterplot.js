@@ -279,6 +279,7 @@ function drawBarplot(Origin, Year, flag){
                 .orient("left");
   //remove the previous barblot
   svg.selectAll("g").remove() 
+  svg.selectAll("text").remove()
 
   try{  
 
