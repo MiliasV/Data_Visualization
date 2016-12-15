@@ -2,7 +2,7 @@ var viewWidth = 2*window.innerWidth/5;
 var viewHeight = 2*window.innerHeight/5;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 20, right: 60, bottom: 50, left: 80};
+var margin = {top: 30, right: 60, bottom: 60, left: 80};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
@@ -295,12 +295,12 @@ function drawBarPlot(year){
       .attr("text-anchor", "end")
 
 //Title of the graph
+//Title of the graph
   svg.append("text")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top - 20))
+        .attr("x", (width*0.6))             
+        .attr("y", 0 - (margin.top - 30))
         .attr("text-anchor", "middle")  
-        .style("font-size", "15px") 
-        .style("text-decoration", "underline")  
+        .attr("class", "title")
         .text(title);
 
   g.selectAll(".bar")
@@ -333,7 +333,7 @@ function drawBarPlot(year){
   function getTextMouseOver(d) {
     var result =  xName + ": " + d.key + "</br>" + 
                   yName + ": " + d.values;
-    return result;
+    return "<big>" + result + "</big>";
   }
 
   function mouseOut(d) {
@@ -436,7 +436,8 @@ function drawScatterplot(data, kind, txt, country) {
                 .axis()
                 .scale(xScale)
                 .orient("bottom")
-                .ticks(xMax - xMin);
+                .ticks(xMax - xMin)
+                .tickFormat(d3.format("d"));
       //console.log(xValue)
   // setup y
   var yScale = d3.scale.linear().range([viewHeight, 0]), // value -> display
@@ -459,7 +460,7 @@ function drawScatterplot(data, kind, txt, country) {
     .attr("x", width)
     .attr("y", 0)
     .style("text-anchor", "end")
-    .text("x");
+    .text(xName);
 
   // y-axis
   svg.append("g")
@@ -471,17 +472,15 @@ function drawScatterplot(data, kind, txt, country) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Y");
+      .text(yName)
 
 //Title of the graph
   svg.append("text")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top - 20))
+        .attr("x", (width*0.6))             
+        .attr("y", 0 - (margin.top - 30))
         .attr("text-anchor", "middle")  
-        .style("font-size", "15px") 
-        .style("text-decoration", "underline")  
-        .text(text);//+ kind + "(" + text + ")");
-        //.text("Refugees  per " + text);//+ kind + "(" + text + ")");
+        .attr("class", "title")
+        .text(text);
 
   svg.selectAll("circle")
       .data(data)
@@ -553,13 +552,13 @@ function drawScatterplot(data, kind, txt, country) {
     var result = xName + ": " + xValue(d) + "</br>" + yName + ": " + yValue(d);
     if ((kind == 3 || kind == 4)) {
       if (gdpCountry != null){
-        result += "</br>" + "GDP per capia:" + Math.round(+gdpCountry[xValue(d)]) + " US dollar";
+        result += "</br>" + "GDP per capia: " + Math.round(+gdpCountry[xValue(d)]) + " USD";
       }
       else{
         result += "</br>" + "GDP per capia: Unknown";
       }
     }
-    return result;
+    return "<big>" + result + "</big>";
   }
 
   function mouseOut(d) {

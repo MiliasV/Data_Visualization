@@ -58,4 +58,15 @@ select {
 .axis--x path {
   display: none;
 }
+.label  {
+  font-size:14px;
+      font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
 
+}
+
+.title {
+    font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+    font-weight: bold;
+    font-size:20px;
+
+}
