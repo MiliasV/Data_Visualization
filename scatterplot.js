@@ -496,7 +496,7 @@ function drawScatterplot(data, kind, txt, country) {
             console.log(txt)
             console.log(country)
             var url = "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html?country="+ txt + "&year=" +xValue(d) + "&kind="+kind;
-            window.location = url; 
+            window.open(url,'_blank'); 
           //.on("click", click);
         }
   });
