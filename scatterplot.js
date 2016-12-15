@@ -2,7 +2,7 @@ var viewWidth = 2*window.innerWidth/5;
 var viewHeight = 2*window.innerHeight/5;
 d3.select(window).on("resize", resize);
 
-var margin = {top: 20, right: 60, bottom: 50, left: 80};
+var margin = {top: 30, right: 60, bottom: 50, left: 80};
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
