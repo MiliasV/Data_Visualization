@@ -1,23 +1,19 @@
-var viewWidth = 2*window.innerWidth/5;
-var viewHeight = 2*window.innerHeight/5;
+var viewWidth = 3*window.innerWidth/5;
+var viewHeight = 3*window.innerHeight/5;
 //d3.select(window).on("resize", resize);
-var margin = {top: 20, right: 20, bottom: 20, left: 40}
-
-/*var svg = d3.select("svg"),
-    //width = +svg.attr("width") - margin.left - margin.right,
-    width = viewWidth - margin.left - margin.right,
-
-    height = +svg.attr("height") - margin.top - margin.bottom;
-    console.log(height)
-*/
+var margin = {top: 30, right: 60, bottom: 100, left: 80}
 var width = viewWidth - margin.left - margin.right;
 var height = viewHeight - margin.top - margin.bottom;
 
-var svg1 = d3.select("#barplotOutgoing") 
-var svg2 = d3.select("#barplotIncoming") 
+var tooltip =  d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("display", "inline");
 
-var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-    y = d3.scaleLinear().rangeRound([height, 0]);
+var svg1 = createSvg("#barplotOutgoing", 0) 
+var svg2 = createSvg("#barplotIncoming", 1) 
+
+//var x = d3.scaleBand().rangeRound([0, viewWidth]).padding(0.1),
+  //  y = d3.scaleLinear().rangeRound([viewHeight, 0]);
 
 var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 
@@ -26,11 +22,8 @@ var country = null
 var year = null
 var kind = null
 
+
 d3.csv(refugeesPath, function(csv_data){
-
-  var svg1 = createSvg("#barplotOutgoing", 0) 
-  var svg2 = createSvg("#barplotIncoming", 1) 
-
 
   country ="Afghanistan"
   year = 1999
@@ -55,8 +48,8 @@ d3.csv(refugeesPath, function(csv_data){
 
 function createSvg(text, kind){
    return d3.select(text)
-            .attr("width", window.innerWidth)//viewWidth + margin.left + margin.right)
-            .attr("height", 600)//viewHeight + margin.top + margin.bottom)
+            .attr("width",viewWidth + margin.left + margin.right)//viewWidth + margin.left + margin.right)
+            .attr("height", viewHeight + margin.top + margin.bottom)//viewHeight + margin.top + margin.bottom)
             .append("g")
             .attr("id", kind)
             .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
@@ -217,10 +210,20 @@ function getcountriesPerOriginPerYear(data, Origin, Year, flag){
               .filter(function(d){return d.key == Year})[0].values
     console.log(countriesPerOrigin)
    
-    countriesPerOrigin.sort(function(x, y){
-        return d3.descending(x.value, y.value)})
+  countriesPerOrigin.sort(function(a, b){
+                                            if(a.values < b.values) return 1;
+                                            if(a.values > b.values) return -1;
+                                            return 0;
+                                        });
+    countriesPerOrigin = countriesPerOrigin.slice(0,20);
+    var result = []
+    for (i=0; i<countriesPerOrigin.length; i++){
+      if(countriesPerOrigin.values != "0"){
+        result.push(countriesPerOrigin[i]);
+      }
+    }
 
-    return countriesPerOrigin; //countriesPerOrigin[0].values.filter(function(d){return d.key == Year})[0].values
+    return result; //countriesPerOrigin[0].values.filter(function(d){return d.key == Year})[0].values
   }
   catch(err){
     console.log("Not exist", err)
@@ -232,17 +235,37 @@ function getcountriesPerOriginPerYear(data, Origin, Year, flag){
 function drawBarplot(Origin, Year, flag){
   if (flag==0){
     svg = svg1
+    title = "Outgoing refugees from " + Origin + " in " + Year
   }
   else{
     svg=svg2
+    title = "Incoming refugees to " + Origin + " in " + Year
+
   }
+
+  var yName = "Number of refugees"
+  var xName = "Country"
+  var xScale = d3.scale.ordinal().rangeRoundBands([0, viewWidth], .05); // value -> display
+      xMap = function(d) { return xScale(d.key);}, // data -> display
+      xAxis = d3.svg
+                .axis()
+                .scale(xScale)
+                .orient("bottom")
+  // setup y
+  var yScale = d3.scale.linear().range([viewHeight, 0]), // value -> display
+      yMap = function(d) {return yScale(d.values);}, // data -> display
+      yAxis = d3.svg
+                .axis()
+                .scale(yScale)
+                .orient("left");
   //remove the previous barblot
   svg.selectAll("g").remove() 
 
   try{  
 
   var g = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
+  //.attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
+      //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
 
    console.log(Origin, Year)
    //Get the data
@@ -250,40 +273,72 @@ function drawBarplot(Origin, Year, flag){
 
   //  console.log(countriesPerOriginPerYear)
 
-  x.domain(countriesPerOriginPerYear.map(function(d) { return d.key; }));
-  y.domain([0, d3.max(countriesPerOriginPerYear, function(d) { return d.value; })]);
-
+  console.log(countriesPerOriginPerYear)
+  xScale.domain(countriesPerOriginPerYear.map(function(d) { return d.key; }));
+  var yMax = d3.max(countriesPerOriginPerYear, function(d) { return d.values; });
+  yScale.domain([0, yMax + 0.1*yMax]);
 
   g.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x))
+      .attr("class", "xAxis")
+      .attr("transform", "translate(0," + viewHeight + ")")
+      .call(xAxis)
       .selectAll("text")
-      .attr("y", 0)
-      .attr("x", 9)
-      .attr("dy", ".35em")
-      .attr("transform", "rotate(90)")
+      .attr("y", 6)
+      .attr("x", 0)
+      .attr("dy", ".75em")
+      .attr("transform", "rotate(25)")
       .style("text-anchor", "start");
 
   g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(y).ticks(20))
+      .attr("class", "yAxis")
+      .call(yAxis)
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("text-anchor", "end")
-      //.text("Frequency");
+
+//Title of the graph
+  svg.append("text")
+        .attr("x", (width*0.6))             
+        .attr("y", 0 - (margin.top - 30))
+        .attr("text-anchor", "middle")  
+        .attr("class", "title")
+        .text(title);
 
   g.selectAll(".bar")
     .data(countriesPerOriginPerYear)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.key); })
-      .attr("y", function(d) { console.log(height);return y(d.value); })
-      .attr("width", x.bandwidth())
-      .attr("height", function(d) { return height - y(d.value); });
- }
+      .attr("x", function(d) {  return xMap(d); })
+      .attr("y", function(d) {  return yMap(d); })
+      .attr("width", xScale.rangeBand())
+      .attr("height", function(d) { return viewHeight - yMap(d); })
+      .on("mouseover", mouseOver)
+      .on("mouseout", mouseOut);
+
+  function mouseOver (d){
+    tooltip.transition()
+         .duration(200)
+         .style("opacity", .9);
+    d3.select(this).style("fill", "LightSkyBLue"); 
+    tooltip.html(getTextMouseOver(d))
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+  }
+
+  function getTextMouseOver(d) {
+    var result =  "<big>" + xName + ": " + d.key + "</br>" + 
+                  yName + ": " + d.values + "</big>";
+    return result;
+  }
+
+  function mouseOut(d) {
+    tooltip.transition()
+           .duration(500)
+           .style("opacity", 0);
+    d3.select(this).style("fill", "steelblue"); 
+  }}
  catch(err){
     svg.selectAll("g").remove()
 

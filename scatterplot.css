@@ -4,23 +4,26 @@ body {
   padding: 0;
 }
 
-/*.xAxis line, .xAxis path {
-  stroke: red;
-  fill: blue;
-}*/
-
-.axis path, .axis line {
-  fill: blue;
-  stroke: #000;
-  shape-rendering: crispEdges;
-  font-size: :20px;
+.tick text { font-size: 14px;
+    font-weight: bold; 
+    font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
 }
 
 .dot, .bar {
-  stroke-width: 0.25pt;
   /*stroke: #555;*/
   /*fill: DarkGray ;*/
    fill:steelblue;
+}
+.label  {
+  font-size:14px;
+      font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+
+}
+
+.title {
+    font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+    font-weight: bold;
+    font-size:20px;
 
 }
 
@@ -40,7 +43,7 @@ select {
 
 .tooltip {
   position: absolute;
-  width: 200px;
+  width: 300px;
   height: 28px;
   pointer-events: none;
 }
