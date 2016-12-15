@@ -111,10 +111,12 @@ function createDropdown(csv_data){
   //Preselection (We can use a function)  
 
     try{
-      console.log("preselection")
+      var thisId = "[id = '" + country +"']"
+      var selectString = "" + thisId
+
       d3.select("#OriginCountries")
         //.selectAll("option")
-        .select("#" + country)
+        .select(selectString)
         //.select("[label]=" + country)
         //.append("option")
         .attr("selected","selected")
@@ -125,9 +127,12 @@ function createDropdown(csv_data){
     }   
 
     try{
+      var thisId = "[id = '" + country +"']"
+      var selectString = "" + thisId
+
       d3.select("#Ingoing")
         //.append("option")
-        .select("#" + country)
+        .select(selectString)
         .attr("selected","selected")
         //.attr("label",country)
     }
