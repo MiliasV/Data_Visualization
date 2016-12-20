@@ -43,11 +43,10 @@ d3.csv(refugeesPath, function(csv_data){
 
 });
 
-
 function createSvg(text, kind){
    return d3.select(text)
-            .attr("width",viewWidth + margin.left + margin.right)//viewWidth + margin.left + margin.right)
-            .attr("height", viewHeight + margin.top + margin.bottom)//viewHeight + margin.top + margin.bottom)
+            .attr("width",viewWidth + margin.left + margin.right)
+            .attr("height", viewHeight + margin.top + margin.bottom)
             .append("g")
             .attr("id", kind)
             .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
@@ -82,8 +81,6 @@ function createDropdown(csv_data){
         else{
           str = "#"  +value 
           }
-          console.log(str)
-
           d3.select(str)
             .append("option")
             .attr("label",row[value])
@@ -95,21 +92,11 @@ function createDropdown(csv_data){
               str = ""
           }
         }
-        console.log("done",str)
-        /*
-        d3.select(str)
-          .append("option")
-          .attr("label","")
-          .attr("selected", "selected") 
-      */
-  
-     
   } 
 
      )
 
   //Preselection (We can use a function) 
-
   //First country dropdown Selection
     try{
       var thisId = "[id = '" + country +"']"
@@ -240,7 +227,7 @@ function getcountriesPerOriginPerYear(data, Origin, Year, flag){
       }
     }
 
-    return result; //countriesPerOrigin[0].values.filter(function(d){return d.key == Year})[0].values
+    return result;
   }
   catch(err){
     console.log("Not exist", err)
@@ -282,16 +269,9 @@ function drawBarplot(Origin, Year, flag){
   try{  
 
   var g = svg.append("g")
-  //.attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
-      //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
-
-   console.log(Origin, Year)
    //Get the data
-   var countriesPerOriginPerYear = getcountriesPerOriginPerYear(data, Origin, Year, flag) 
+  var countriesPerOriginPerYear = getcountriesPerOriginPerYear(data, Origin, Year, flag) 
 
-  //  console.log(countriesPerOriginPerYear)
-
-  console.log(countriesPerOriginPerYear)
   xScale.domain(countriesPerOriginPerYear.map(function(d) { return d.key; }));
   var yMax = d3.max(countriesPerOriginPerYear, function(d) { return d.values; });
   yScale.domain([0, yMax + 0.1*yMax]);
