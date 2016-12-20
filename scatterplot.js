@@ -34,6 +34,7 @@ function addMissingValues(array){
   return array;
 }
 
+//Function that creates an svg with the appropriate size
 function createSvg(text, kind){
    return d3.select(text)
             .attr("width", viewWidth + margin.left + margin.right)
@@ -51,7 +52,7 @@ var svg4 = createSvg("#svgFourth", "year") //Incoming-Country per Year, kind = 4
 var svg5 = createSvg("#svgFifth", "year") //Outgoing-Country per Month, kind = 5
 var svg6 = createSvg("#svgSixth", "year") //Incoming-Country per Month, kind = 6
 
-// Read the dataset from the csv file
+// Read the datasets from the csv files
 var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 var gdpPath = "data/gdp_per_capita.csv"
 
@@ -60,6 +61,7 @@ d3.csv(gdpPath, function(csv) {
   gdp_csv = csv;
 });
 
+//function that takes as input a country and returns its GDP
 function getGdp(country){
   result = null;
   for (i =0; i<gdp_csv.length; i++){
@@ -80,8 +82,9 @@ d3.csv(refugeesPath, function(csv_data) {
   the_csv_data = csv_data;
 });
 
+//Creation of the dropdown list
 function createDropdown(csv_data){
-  var menu = ["OriginCountries", "Ingoing"]
+  var menu = ["OriginCountries"]
   menu.forEach(function(value, index, array){
     csv = csv_data.filter(function(row){
           return row[value]
@@ -96,23 +99,17 @@ function createDropdown(csv_data){
     });
 
   })
-  
-    
         };
 
+//Draw the Outgoing/Incoming refugees from/in the selected country
 function dropdownSelectionOutgoing(s){
   var country = s[s.selectedIndex].id; 
-  drawScatterplot(getDataPerOrigin(the_csv_data, country, "Origin"),3, country)
-  drawScatterplot(getDataPerOrigin(the_csv_data, country, "Country"),4, country)
+  drawScatterplot(getDataPerCountry(the_csv_data, country, "Origin"),3, country)
+  drawScatterplot(getDataPerCountry(the_csv_data, country, "Country"),4, country)
 }
 
-/*
-function dropdownSelectionIncoming(s){
-  var country = s[s.selectedIndex].id; 
-  drawScatterplot(getDataPerOrigin(the_csv_data, country, "Country"),3, country)
-}
-*/
-// Get the year as key and the sum of the number of refugees in that year
+
+// Get the year as key and then sum the number of refugees in that year
 function getDataPerYear(csv_data) {
   var temp = d3.nest()
               .key(function(d) {return d.Year})
@@ -139,64 +136,24 @@ function monthsToNumbers(month){
   return month
 }
 
-function getDataPerMonth(csv_data, Year){
-  var dataPerMonth = d3.nest()
-            .key(function(d) {return d.Year})
-            .key(function(d){ return d.Month})
-            .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
-            .entries(csv_data)
-            .filter(function(d){ return d.key == Year})
-  var tmp = dataPerMonth[0]
-  for (d in tmp.values){
-    tmp.values[d].key = monthsToNumbers(tmp.values[d].key)    
-  }
-  return tmp.values
-};
-
-function getDataPerOrigin(csv_data, Origin, column){
+// Get the country as key and then sum the number of refugees for each year.
+// The column specifies if the data correspond to outgoing (column = "Origin")
+// or incoming (column = "Country") refugees.
+function getDataPerCountry(csv_data, country, column){
   var dataPerOrigin = d3.nest()
             .key(function(d) {return d[column]})
             .key(function(d){ return d.Year})
             .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
             .entries(csv_data)
-            .filter(function(d){ return d.key == Origin})
+            .filter(function(d){ return d.key == country})
 
-  console.log(dataPerOrigin)
-  console.log(Origin, column)
   if (dataPerOrigin.length==0){
     return zeroArr;
   }
-  /*
-  else if(dataPerOrigin.length != 17){
-    console.log(dataPerOrigin[0].values)
-    //return addMissingValues(dataPerOrigin[0].values)
-  }*/
-  //console.log(dataPerOrigin[0].values)
+
   else return dataPerOrigin[0].values; 
 }
 
-function getDataPerOriginPerMonth(csv_data, Origin, Year){
-  console.log(Origin)
-  var dataPerOrigin = d3.nest()
-            .key(function(d) { return d.Origin})
-            .key(function(d){ return d.Year})
-            .key(function(d){ return d.Month})
-            .rollup(function(d) {return d3.sum(d, function(g){return g.Value})})
-            .entries(csv_data)
-            .filter(function(d){  return (d.key == Origin)})
-  var dataPerOriginPerMonth = dataPerOrigin[0].values
-                                              .filter(function(d){return d.key == Year})
-  console.log(dataPerOriginPerMonth[0].values)
-
-  var tmp = dataPerOriginPerMonth[0]
-           for (d in tmp.values){
-              tmp.values[d].key = monthsToNumbers(tmp.values[d].key)    
-            }  
-  return tmp.values
-  //return dataPerOrigin[0].values; 
-}
-
-// kind can be "outgoing" or "incoming"
 function getDataPerYearPerOrigin(year, kind){
   var countriesPerOrigin = d3.nest()
           .key(function(d) {return d["Year"]})
@@ -214,6 +171,10 @@ function getDataPerYearPerOrigin(year, kind){
 }
 
 
+// Get the country as key and then sum the number of refugees for each month
+// of a specific year.
+// The flag specifies if the data correspond to outgoing (column = "Origin")
+// or incoming (column = "Country") refugees.
 function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
   if (flag==0){
     var fromColumn = "Origin"
@@ -236,7 +197,6 @@ function getDataPerCountryPerMonth(csv_data, Country, Year, flag){
               tmp.values[d].key = monthsToNumbers(tmp.values[d].key)    
             }  
   return tmp.values
-  //return dataPerOrigin[0].values; 
 }
 
 
@@ -266,7 +226,6 @@ function drawBarPlot(year){
   }
 
   var g = svg.append("g")
-      //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
    //Get the data
   var countriesPerOriginPerYear = getDataPerYearPerOrigin(year, "outgoing")
 
@@ -294,7 +253,6 @@ function drawBarPlot(year){
       .attr("dy", "0.71em")
       .attr("text-anchor", "end")
 
-//Title of the graph
 //Title of the graph
   svg.append("text")
         .attr("x", (width*0.6))             
@@ -346,11 +304,15 @@ function drawBarPlot(year){
 
 
 // Draw a scatter plot using the given data
+// Arguments: data => data to be plotted
+//            kind => which graph should be plotted
+//            txt => Country or Month (if the data is per Month)
+//            country => The country (if the txt is the Month)
 function drawScatterplot(data, kind, txt, country) {
 
   var xName = ""
   var gdpCountry = null
-  //console.log(data)
+
   // Whole world per Year
   if(kind == 1){
     var svg = svg1;
@@ -372,7 +334,7 @@ function drawScatterplot(data, kind, txt, country) {
       xName = "Month"
     }
   }
-  // Country per Year
+  // Outgoing Refugees per country per year
   else if (kind == 3){
     var svg = svg3;
     svg.selectAll("g").remove()
@@ -385,7 +347,7 @@ function drawScatterplot(data, kind, txt, country) {
     gdpCountry = getGdp(txt)
 
   }
-  // Incoming Refugees per Year
+  // Incoming Refugees per Country per year
    else if (kind == 4){
     var svg = svg4;
     svg.selectAll("g").remove()
@@ -399,6 +361,7 @@ function drawScatterplot(data, kind, txt, country) {
     gdpCountry = getGdp(txt)
   }
 
+  // Outgoing Refugees per country per Month
   else if (kind == 5){
     var svg = svg5;
     svg.selectAll("circle").remove();
@@ -411,6 +374,7 @@ function drawScatterplot(data, kind, txt, country) {
     gdpCountry = getGdp(txt)
   }
 
+  // Incoming Refugees per country per Month
    else if (kind == 6){
     var svg = svg6;
     svg.selectAll("circle").remove();
@@ -489,20 +453,18 @@ function drawScatterplot(data, kind, txt, country) {
       .append("circle")
 
       .attr("class", "dot")
-      .attr("r", getRadius)//function(d){console.log(d); return d.values/60000})
+      .attr("r", getRadius)
       .attr("cx", xMap)
       .attr("cy", yMap)
       .on("mouseover", mouseOver)
       .on("mouseout", mouseOut)
 
-      //.on("click", function(){d3.select(this).attr("xlink:href", function(d) {return "http://localhost:8000/Desktop/Data-Visualization/datagit/Data_Visualization/barplot_index.html" })}) 
        .on("click", function(d){
           if(kind==3 || kind==4 ){
             console.log(txt)
             console.log(country)
             var url = "barplot_index.html?country="+ txt + "&year=" +xValue(d) + "&kind="+kind;
             window.open(url,'_blank'); 
-          //.on("click", click);
         }
   });
 
@@ -517,17 +479,12 @@ function drawScatterplot(data, kind, txt, country) {
       }
       var min = d3.min(array)
       var max = d3.max(array)*(1/0.7)
-      //console.log(data)
-      //console.log(max, gdp, gdpCountry)
-
       result = 5 + ((gdp-min)*(1/0.7)/(max-min)) * 10
     }
     console.log(result)
     return result;
   }
 
-
-  
   function mouseOver(d) {
     tooltip.transition()
          .duration(200)
@@ -536,10 +493,11 @@ function drawScatterplot(data, kind, txt, country) {
     tooltip.html(getTextMouseOver(d))
             .style("left", (d3.event.pageX + 5) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
+     
     if (kind==1){
-      //drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
       drawBarPlot(d.key)
     }
+    
     else if(kind==3){
       drawScatterplot(getDataPerCountryPerMonth(the_csv_data, txt, d.key, 0), 5, d.key.toString(),txt)
     }
@@ -568,14 +526,6 @@ function drawScatterplot(data, kind, txt, country) {
     d3.select(this).style("fill", "steelblue"); 
   }
 
-  function click(d) {
-    if (kind==1){
-      drawScatterplot(getDataPerMonth(the_csv_data,d.key), 2, d.key.toString())
-    }
-    else if(kind==3){
-      drawScatterplot(getDataPerOriginPerMonth(the_csv_data, txt, d.key), 4, d.key.toString(),txt)
-    }
-  }
 }
 
 function resize() {
@@ -591,15 +541,3 @@ function myFunction() {
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-////////////////////    ADDITIONAL TASKS   ///////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-/*
-Once that you have implemented your basic scatterplot you can work on new features
-  * Color coding of the points based on a third attribute
-  * Legend for the third attribute with color scale
-  * Interactive selection of the 3 attributes visualized in the scatterplot
-  * Resizing of the window updates the scatterplot
-*/

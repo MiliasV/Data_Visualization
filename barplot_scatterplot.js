@@ -12,12 +12,10 @@ var tooltip =  d3.select("body").append("div")
 var svg1 = createSvg("#barplotOutgoing", 0) 
 var svg2 = createSvg("#barplotIncoming", 1) 
 
-//var x = d3.scaleBand().rangeRound([0, viewWidth]).padding(0.1),
-  //  y = d3.scaleLinear().rangeRound([viewHeight, 0]);
-
 var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 
-var data = null //global variable that contains all the dataset
+//Initialization of the global variables.
+var data = null 
 var country = null
 var year = null
 var kind = null

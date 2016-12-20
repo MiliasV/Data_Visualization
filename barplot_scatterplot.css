@@ -7,18 +7,7 @@ body {
 #descr {
   font-size:15px;
 }
-/*.xAxis line, .xAxis path {
-  stroke: red;
-  fill: blue;
-}
 
-.axis path, .axis line {
-  fill: blue;
-  stroke: #000;
-  shape-rendering: crispEdges;
-  font-size: :20px;
-}
-*/
 .dot {
   stroke-width: 0.25pt;
   /*stroke: #555;*/
