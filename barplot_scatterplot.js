@@ -12,12 +12,10 @@ var tooltip =  d3.select("body").append("div")
 var svg1 = createSvg("#barplotOutgoing", 0) 
 var svg2 = createSvg("#barplotIncoming", 1) 
 
-//var x = d3.scaleBand().rangeRound([0, viewWidth]).padding(0.1),
-  //  y = d3.scaleLinear().rangeRound([viewHeight, 0]);
-
 var refugeesPath = "data/asylum_seekers_monthly_all_data2.csv";
 
-var data = null //global variable that contains all the dataset
+//Initialization of the global variables.
+var data = null 
 var country = null
 var year = null
 var kind = null
@@ -45,11 +43,10 @@ d3.csv(refugeesPath, function(csv_data){
 
 });
 
-
 function createSvg(text, kind){
    return d3.select(text)
-            .attr("width",viewWidth + margin.left + margin.right)//viewWidth + margin.left + margin.right)
-            .attr("height", viewHeight + margin.top + margin.bottom)//viewHeight + margin.top + margin.bottom)
+            .attr("width",viewWidth + margin.left + margin.right)
+            .attr("height", viewHeight + margin.top + margin.bottom)
             .append("g")
             .attr("id", kind)
             .attr("transform", "translate(" + margin.left  + "," + margin.top + ")");
@@ -84,8 +81,6 @@ function createDropdown(csv_data){
         else{
           str = "#"  +value 
           }
-          console.log(str)
-
           d3.select(str)
             .append("option")
             .attr("label",row[value])
@@ -97,27 +92,25 @@ function createDropdown(csv_data){
               str = ""
           }
         }
-        console.log("done")
-     
-  })
+  } 
 
-  //Preselection (We can use a function)  
+     )
 
+  //Preselection (We can use a function) 
+  //First country dropdown Selection
     try{
       var thisId = "[id = '" + country +"']"
       var selectString = "" + thisId
 
       d3.select("#OriginCountries")
-        //.selectAll("option")
-        .select(selectString)
-        //.select("[label]=" + country)
-        //.append("option")
+        .select(selectString)        
         .attr("selected","selected")
-        //.attr("label",country)
     }
     catch(err){
       console.log("Not exist: ",err)
     }   
+
+  //Second country dropdown Selection
 
     try{
       var thisId = "[id = '" + country +"']"
@@ -133,9 +126,12 @@ function createDropdown(csv_data){
       console.log("Not exist: ",err)
     }   
 
+  //First year dropdown Selection
+
     try{
       var thisId = "[id = '" + year +"']"
       var selectString = "" + thisId
+
       d3.select("#UniqueYear")
         //.selectAll("#option")
         .select(selectString)//("#" + 2010)// + year.toString())
@@ -145,6 +141,9 @@ function createDropdown(csv_data){
     catch(err){
       console.log("Not exist: ",err)
     }
+
+  //Second year dropdown Selection
+
     try{
       var thisId = "[id = '" + year +"']"
       var selectString = "" + thisId
@@ -228,7 +227,7 @@ function getcountriesPerOriginPerYear(data, Origin, Year, flag){
       }
     }
 
-    return result; //countriesPerOrigin[0].values.filter(function(d){return d.key == Year})[0].values
+    return result;
   }
   catch(err){
     console.log("Not exist", err)
@@ -265,20 +264,14 @@ function drawBarplot(Origin, Year, flag){
                 .orient("left");
   //remove the previous barblot
   svg.selectAll("g").remove() 
+  svg.selectAll("text").remove()
 
   try{  
 
   var g = svg.append("g")
-  //.attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
-      //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
-
-   console.log(Origin, Year)
    //Get the data
-   var countriesPerOriginPerYear = getcountriesPerOriginPerYear(data, Origin, Year, flag) 
+  var countriesPerOriginPerYear = getcountriesPerOriginPerYear(data, Origin, Year, flag) 
 
-  //  console.log(countriesPerOriginPerYear)
-
-  console.log(countriesPerOriginPerYear)
   xScale.domain(countriesPerOriginPerYear.map(function(d) { return d.key; }));
   var yMax = d3.max(countriesPerOriginPerYear, function(d) { return d.values; });
   yScale.domain([0, yMax + 0.1*yMax]);
