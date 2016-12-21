@@ -460,7 +460,9 @@ function drawScatterplot(data, kind, txt, country) {
     .attr("x", width)
     .attr("y", 0)
     .style("text-anchor", "end")
+    .append("text")
     .text(xName);
+    //.attr("transform", "translate("+ (width/2) + ",0)");
 
   // y-axis
   svg.append("g")
