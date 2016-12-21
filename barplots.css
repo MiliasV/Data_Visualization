@@ -1,0 +1,61 @@
+body {
+  font: 10px sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#descr {
+  font-size:15px;
+}
+
+.dot {
+  stroke-width: 0.25pt;
+  /*stroke: #555;*/
+  fill: DarkGray ;
+
+}
+
+select {
+	min-width: 10px;
+	margin-left: 10px;
+	margin-right: 25px;
+}
+
+#container {
+  text-align: center;
+}
+
+#selectionUI {
+  display: inline-block;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
+}
+.label  {
+  font-size:14px;
+      font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+
+}
+
+.title {
+    font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+    font-weight: bold;
+    font-size:20px;
+
+}

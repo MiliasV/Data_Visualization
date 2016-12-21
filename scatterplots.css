@@ -1,0 +1,53 @@
+body {
+  font: 10px sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.tick text { font-size: 14px;
+    font-weight: bold; 
+    font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+}
+
+.dot, .bar {
+  /*stroke: #555;*/
+  /*fill: DarkGray ;*/
+   fill:steelblue;
+}
+.label  {
+  font-size:14px;
+      font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+
+}
+
+.title {
+    font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+    font-weight: bold;
+    font-size:20px;
+
+}
+
+select {
+	min-width: 100px;
+	margin-left: 10px;
+	margin-right: 25px;
+}
+
+#container {
+  text-align: center;
+}
+
+#selectionUI {
+  display: inline-block;
+}
+
+.tooltip {
+  position: absolute;
+  width: 300px;
+  height: 28px;
+  pointer-events: none;
+}
+
+#descr {
+  font-size:15px;
+}
